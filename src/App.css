@@ -1,140 +1,42 @@
-/******************************************************************************/
-/* App CSS */
-
-html, body {
-  --color-font: #107869;
-  --color-special: #c0c0c0;
-  --color-background: #5cd85a;
-  --color-header: #08313A;
-  --color-header-alpha: #08313A;
-
-  margin: 0;
-  padding: 0;
-  height: 100%;
-
-  color: var(--color-font);
-  background: var(--color-background);
-}
-
 #root {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.App {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-/*
- *  Common rules.
- */
-
-.col {
-  display: flex;
-  flex-direction: row;
-}
-.grow {
-  flex-grow: 1;
-}
-.float {
-  padding: 4px;
-  background-color: #ecc60db0;
-}
-.underline {
-  padding-bottom: 5px;
-  border-bottom: 2px solid var(--color-header);
-  margin-bottom: 5px;
-}
-.spacer {
-  width: 30px;
-}
-
-.jumbotron {
-  width: 100%;
-  margin: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 23pt;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  background-color: #f0f0f0f0;
-}
-
-/*
- *  Header rules.
- */
-.App-header {
-  display: flex;
-  flex-direction: row;
-  height: 64px;
-  background-color: var(--color-header);
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.link,
-.App-header a {
-  margin: 20px;
-  color: var(--color-font);
-  cursor: pointer;
-  text-decoration: none;
-}
-.App-header a:visited {
-  color: var(--color-font);
-}
-
-.link, .link:visited {
-  color: var(--color-special);
-}
-
-.App-header a.isActive,
-.App-header a:hover {
-  color: var(--color-special);
-}
-.App-header .balance {
-  color: var(--color-font);
-  margin-right: 20px;
-}
-
-/*
- *  Body spans rest of space.
- */
-.App-body {
-  display: flex;
-  justify-content: center;
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
-.App-scroll {
-  width: 100%;
-  height: calc(100vh - 50px);
-  display: flex;
-  flex-direction: column;
-}
-
-/******************************************************************************/
-
-.Home-main {
-  height: 100%;
-  max-width: 720px;
+  max-width: 1280px;
   margin: 0 auto;
-
-  display: flex;
-  flex-direction: column;
-
-  justify-content: center;
-  align-items: center;
+  padding: 2rem;
+  text-align: center;
 }
 
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
 
-.earth-image {
-  width: 172px;
-  height: 172px;
-  border-radius: 12px;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }
