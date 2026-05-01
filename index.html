@@ -1,14 +1,1550 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-    <script type="module" crossorigin src="/assets/index-BLkQLt1V.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-n_ryQ3BS.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scrapi — A sales floor OS for industrial scrap</title>
+  <meta name="description" content="Scrapi is a private operating layer for medium-and-large scrap yards. Email, SMS, and WhatsApp bids land in one sorted table — with an immutable record behind every accepted deal." />
+  <meta property="og:title" content="Scrapi — A sales floor OS for industrial scrap" />
+  <meta property="og:description" content="Email, SMS, and WhatsApp bids in one sorted table. An immutable record behind every accepted deal." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0E0F0D" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:           #0E0F0D;
+      --bg-2:         #131411;
+      --surface:      #1A1B18;
+      --surface-2:    #22231F;
+      --line:         #2A2B27;
+      --line-bright:  #3A3B36;
+
+      --ink:          #EDE6D6;
+      --ink-2:        #C7C0AF;
+      --ink-dim:      #8E887B;
+      --ink-faint:    #5C5A52;
+
+      --copper:       #C97B4E;
+      --copper-bright:#E0966A;
+      --copper-deep:  #6E3F25;
+      --rust:         #A3402C;
+      --green:        #7E9C5F;
+
+      --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+      --body:    'IBM Plex Sans', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono:    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --max:     1320px;
+      --gutter:  clamp(20px, 4vw, 56px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; }
+
+    html {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      background:
+        radial-gradient(1200px 800px at 85% -10%, rgba(201,123,78,0.07), transparent 60%),
+        radial-gradient(900px 600px at -10% 30%, rgba(201,123,78,0.04), transparent 70%),
+        var(--bg);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle film grain — SVG turbulence noise overlay */
+    body::before {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.06;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.93  0 0 0 0 0.9  0 0 0 0 0.84  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* Faint vertical rule grid down the page edges */
+    body::after {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        linear-gradient(90deg, transparent 0, transparent calc(50% - 660px), rgba(237,230,214,0.04) calc(50% - 660px), rgba(237,230,214,0.04) calc(50% - 659px), transparent calc(50% - 659px)),
+        linear-gradient(90deg, transparent 0, transparent calc(50% + 659px), rgba(237,230,214,0.04) calc(50% + 659px), rgba(237,230,214,0.04) calc(50% + 660px), transparent calc(50% + 660px));
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    img, svg { display: block; max-width: 100%; }
+
+    ::selection { background: var(--copper); color: var(--bg); }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      position: relative;
+      z-index: 5;
+      padding: 26px 0 0;
+    }
+
+    .topbar .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .mark {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .mark-glyph {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--copper);
+      transform: rotate(45deg);
+      position: relative;
+      top: 3px;
+      box-shadow: inset 0 0 0 3px rgba(201,123,78,0.15);
+    }
+
+    .mark-name {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+    }
+
+    .mark-suffix {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-dim);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+    }
+    .nav a { transition: color 180ms ease; }
+    .nav a:hover { color: var(--copper-bright); }
+
+    .nav .pill {
+      padding: 9px 14px;
+      border: 1px solid var(--line-bright);
+      color: var(--ink);
+      transition: all 180ms ease;
+    }
+    .nav .pill:hover {
+      border-color: var(--copper);
+      color: var(--copper-bright);
+      background: rgba(201,123,78,0.06);
+    }
+
+    @media (max-width: 760px) {
+      .nav .nav-link { display: none; }
+    }
+
+    /* ---------- Section utility ---------- */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::before {
+      content: "";
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: var(--copper);
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--copper);
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      padding: clamp(60px, 10vw, 120px) 0 clamp(60px, 9vw, 110px);
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: clamp(40px, 6vw, 80px);
+      align-items: start;
+    }
+
+    @media (max-width: 1020px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 22px;
+      margin-bottom: 36px;
+      align-items: center;
+      animation: fadeUp 700ms cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .hero h1 {
+      font-family: var(--display);
+      font-weight: 380;
+      font-style: normal;
+      font-size: clamp(44px, 6.4vw, 92px);
+      line-height: 0.98;
+      letter-spacing: -0.025em;
+      margin: 0;
+      color: var(--ink);
+      font-variation-settings: "opsz" 144;
+      animation: fadeUp 800ms 60ms cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 360;
+      color: var(--copper-bright);
+      font-variation-settings: "opsz" 144;
+    }
+
+    .hero h1 .strike {
+      position: relative;
+      display: inline-block;
+      color: var(--ink-dim);
+    }
+    .hero h1 .strike::after {
+      content: "";
+      position: absolute;
+      left: -2%;
+      right: -2%;
+      top: 56%;
+      height: 3px;
+      background: var(--rust);
+      transform: rotate(-1.5deg);
+    }
+
+    .hero .lede {
+      margin-top: 32px;
+      max-width: 540px;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      animation: fadeUp 800ms 180ms cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .hero .lede strong { color: var(--ink); font-weight: 600; }
+
+    .cta-row {
+      margin-top: 40px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fadeUp 800ms 280ms cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 22px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: transform 200ms ease, background 200ms ease, color 200ms ease, border-color 200ms ease;
+    }
+
+    .btn-primary {
+      background: var(--copper);
+      color: var(--bg);
+      border: 1px solid var(--copper);
+    }
+    .btn-primary:hover {
+      background: var(--copper-bright);
+      border-color: var(--copper-bright);
+      transform: translateY(-1px);
+    }
+    .btn-primary .arrow { transition: transform 220ms ease; }
+    .btn-primary:hover .arrow { transform: translateX(3px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line-bright);
+    }
+    .btn-ghost:hover {
+      border-color: var(--ink-2);
+      color: var(--copper-bright);
+    }
+
+    .hero-aside {
+      animation: fadeUp 900ms 380ms cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    /* ---------- Bid Table widget ---------- */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0;
+      box-shadow:
+        0 30px 80px -40px rgba(0,0,0,0.7),
+        0 1px 0 rgba(237,230,214,0.04) inset;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .terminal::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(201,123,78,0.08), transparent 30%);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    .terminal-bar .left {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .lot-tag {
+      color: var(--ink);
+      letter-spacing: 0.04em;
+      text-transform: none;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .lot-tag .lot-id {
+      color: var(--ink-dim);
+      margin-right: 8px;
+    }
+
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--copper-bright);
+    }
+    .live-dot::before {
+      content: "";
+      width: 7px; height: 7px;
+      background: var(--copper-bright);
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(224,150,106,0.6);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(224,150,106,0.6); }
+      70%  { box-shadow: 0 0 0 10px rgba(224,150,106,0); }
+      100% { box-shadow: 0 0 0 0 rgba(224,150,106,0); }
+    }
+
+    .terminal-meta {
+      padding: 16px 18px 10px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .terminal-meta .stat {
+      font-family: var(--mono);
+    }
+    .terminal-meta .label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 4px;
+    }
+    .terminal-meta .value {
+      font-size: 14px;
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .terminal-meta .value.copper { color: var(--copper-bright); }
+
+    @media (max-width: 520px) {
+      .terminal-meta { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .bid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    .bid-table thead th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg-2);
+    }
+    .bid-table thead th.right { text-align: right; }
+
+    .bid-table tbody tr {
+      border-bottom: 1px solid rgba(42,43,39,0.6);
+      transition: background 160ms ease;
+    }
+    .bid-table tbody tr:hover { background: var(--surface-2); }
+
+    .bid-table tbody tr.top td.bid {
+      color: var(--copper-bright);
+      font-weight: 600;
+    }
+    .bid-table tbody tr.top::before {
+      /* visual leading bar */
+    }
+
+    .bid-table tbody td {
+      padding: 13px 14px;
+      vertical-align: middle;
+      color: var(--ink);
+    }
+    .bid-table tbody td.dim { color: var(--ink-dim); }
+    .bid-table tbody td.right { text-align: right; }
+
+    .channel {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+    .channel::before {
+      content: "";
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--ink-dim);
+    }
+    .channel.email::before    { background: #6FA5C8; }
+    .channel.sms::before      { background: #C9B26F; }
+    .channel.whatsapp::before { background: var(--green); }
+    .channel.portal::before   { background: var(--copper); }
+
+    .terms {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      padding: 2px 7px;
+      border: 1px solid var(--line-bright);
+      color: var(--ink-2);
+      border-radius: 1px;
+    }
+
+    .row-incoming {
+      animation: rowIn 520ms cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes rowIn {
+      from { background: rgba(201,123,78,0.18); transform: translateY(-4px); opacity: 0; }
+      to   { background: transparent; transform: translateY(0); opacity: 1; }
+    }
+
+    .terminal-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    .accept-btn {
+      background: var(--green);
+      color: #0E0F0D;
+      padding: 8px 14px;
+      border: 1px solid var(--green);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: background 180ms ease;
+    }
+    .accept-btn:hover { background: #95B574; }
+
+    /* Caption under the terminal */
+    .terminal-caption {
+      margin-top: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .terminal-caption span:last-child { color: var(--ink-dim); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- The Problem (editorial pull-quote band) ---------- */
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: clamp(40px, 6vw, 80px) 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.2), transparent);
+    }
+
+    .pull {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(24px, 4vw, 60px);
+      align-items: start;
+    }
+    @media (max-width: 760px) {
+      .pull { grid-template-columns: 1fr; }
+    }
+
+    .pull-quote {
+      font-family: var(--display);
+      font-weight: 340;
+      font-size: clamp(28px, 3.3vw, 44px);
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin: 0;
+      font-variation-settings: "opsz" 144;
+    }
+    .pull-quote em {
+      font-style: italic;
+      color: var(--copper-bright);
+      font-weight: 320;
+    }
+
+    .pull-attrib {
+      margin-top: 22px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    /* ---------- Section: How it works ---------- */
+    .section {
+      padding: clamp(80px, 11vw, 160px) 0;
+      position: relative;
+    }
+    .section + .section { padding-top: 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: clamp(24px, 4vw, 60px);
+      margin-bottom: clamp(40px, 6vw, 80px);
+      align-items: end;
+    }
+    @media (max-width: 760px) {
+      .section-head { grid-template-columns: 1fr; gap: 18px; }
+    }
+
+    .section-title {
+      font-family: var(--display);
+      font-weight: 360;
+      font-size: clamp(36px, 4.6vw, 64px);
+      line-height: 1.04;
+      letter-spacing: -0.02em;
+      margin: 0;
+      max-width: 18ch;
+      font-variation-settings: "opsz" 144;
+    }
+    .section-title em {
+      font-style: italic;
+      color: var(--copper-bright);
+      font-weight: 340;
+    }
+
+    /* How — three steps */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+    @media (max-width: 880px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+
+    .step {
+      padding: 36px 32px 38px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      background: rgba(255,255,255,0.005);
+    }
+    .step .num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--copper);
+    }
+    .step h3 {
+      font-family: var(--display);
+      font-weight: 380;
+      font-size: 26px;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin: 18px 0 12px;
+    }
+    .step p {
+      color: var(--ink-2);
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ---------- Audience split: yards / buyers ---------- */
+    .audience {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+    @media (max-width: 880px) {
+      .audience { grid-template-columns: 1fr; }
+    }
+
+    .audience .col {
+      background: var(--bg);
+      padding: clamp(32px, 4vw, 56px);
+    }
+    .audience .col.buyers {
+      background: var(--bg-2);
+    }
+
+    .audience h3 {
+      font-family: var(--display);
+      font-weight: 380;
+      font-size: clamp(28px, 3vw, 38px);
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+      margin: 18px 0 22px;
+    }
+
+    .audience h3 em {
+      font-style: italic;
+      color: var(--copper-bright);
+      font-weight: 360;
+    }
+
+    .audience ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-top: 1px solid var(--line);
+    }
+    .audience li {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 14px;
+      color: var(--ink-2);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .audience li::before {
+      content: "—";
+      color: var(--copper);
+      font-family: var(--mono);
+    }
+    .audience li strong {
+      display: block;
+      color: var(--ink);
+      font-family: var(--display);
+      font-weight: 480;
+      font-size: 17px;
+      letter-spacing: -0.005em;
+      margin-bottom: 3px;
+    }
+
+    /* ---------- Truth Log ---------- */
+    .trust-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: clamp(36px, 5vw, 72px);
+      align-items: center;
+    }
+    @media (max-width: 1020px) {
+      .trust-grid { grid-template-columns: 1fr; }
+    }
+
+    .log {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 18px 22px 22px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--ink-2);
+      box-shadow: 0 30px 80px -40px rgba(0,0,0,0.7);
+    }
+
+    .log .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 14px;
+      color: var(--ink-faint);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .log .row {
+      display: grid;
+      grid-template-columns: 80px 110px 1fr;
+      gap: 14px;
+      padding: 5px 0;
+    }
+    .log .ts { color: var(--ink-faint); }
+    .log .ev { color: var(--copper); }
+    .log .body { color: var(--ink); }
+    .log .body em { color: var(--copper-bright); font-style: normal; }
+    .log .row.dim .body, .log .row.dim .ts { color: var(--ink-dim); }
+    .log .hash {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--line-bright);
+      color: var(--ink-faint);
+      font-size: 11px;
+      word-break: break-all;
+    }
+    .log .hash span { color: var(--copper); }
+
+    .trust-text h2 {
+      font-family: var(--display);
+      font-weight: 360;
+      font-size: clamp(36px, 4.4vw, 60px);
+      line-height: 1.04;
+      letter-spacing: -0.02em;
+      margin: 14px 0 18px;
+      font-variation-settings: "opsz" 144;
+    }
+    .trust-text h2 em {
+      font-style: italic;
+      color: var(--copper-bright);
+      font-weight: 340;
+    }
+    .trust-text p {
+      color: var(--ink-2);
+      font-size: 17px;
+      line-height: 1.6;
+      max-width: 46ch;
+    }
+
+    /* ---------- Pricing ---------- */
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+    }
+    @media (max-width: 880px) {
+      .pricing { grid-template-columns: 1fr; }
+    }
+
+    .tier {
+      padding: 36px 32px 38px;
+      border-right: 1px solid var(--line);
+      position: relative;
+    }
+    .tier:last-child { border-right: none; }
+    @media (max-width: 880px) {
+      .tier { border-right: none; border-bottom: 1px solid var(--line); }
+      .tier:last-child { border-bottom: none; }
+    }
+
+    .tier.featured {
+      background: linear-gradient(180deg, rgba(201,123,78,0.07), transparent 60%);
+    }
+
+    .tier .name {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--copper);
+    }
+    .tier h3 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 32px;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin: 14px 0 6px;
+    }
+    .tier .price {
+      font-family: var(--display);
+      font-size: 44px;
+      font-weight: 380;
+      line-height: 1;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      font-variation-settings: "opsz" 144;
+    }
+    .tier .price .unit {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      color: var(--ink-dim);
+      margin-left: 6px;
+      text-transform: uppercase;
+    }
+    .tier ul {
+      list-style: none;
+      padding: 0;
+      margin: 22px 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .tier li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-2);
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .tier li::before {
+      content: "+";
+      color: var(--copper);
+      font-family: var(--mono);
+      font-weight: 600;
+    }
+
+    .pricing-foot {
+      margin-top: 26px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--ink-dim);
+      max-width: 70ch;
+    }
+
+    /* ---------- Founder note ---------- */
+    .manifesto {
+      max-width: 760px;
+    }
+    .manifesto p {
+      font-family: var(--display);
+      font-size: clamp(22px, 2.4vw, 30px);
+      line-height: 1.35;
+      font-weight: 340;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0 0 24px;
+      font-variation-settings: "opsz" 144;
+    }
+    .manifesto p em {
+      font-style: italic;
+      color: var(--copper-bright);
+      font-weight: 320;
+    }
+    .manifesto .signoff {
+      margin-top: 30px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+    .manifesto .signoff strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /* ---------- Final CTA ---------- */
+    .final {
+      padding: clamp(80px, 11vw, 140px) 0;
+      border-top: 1px solid var(--line);
+      background:
+        radial-gradient(800px 400px at 70% 50%, rgba(201,123,78,0.10), transparent 60%);
+    }
+
+    .final-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(24px, 4vw, 60px);
+      align-items: end;
+    }
+    @media (max-width: 880px) {
+      .final-grid { grid-template-columns: 1fr; }
+    }
+
+    .final h2 {
+      font-family: var(--display);
+      font-weight: 360;
+      font-size: clamp(40px, 5.4vw, 80px);
+      line-height: 1;
+      letter-spacing: -0.025em;
+      margin: 18px 0 0;
+      font-variation-settings: "opsz" 144;
+    }
+    .final h2 em {
+      font-style: italic;
+      color: var(--copper-bright);
+      font-weight: 340;
+    }
+    .final-aside p {
+      color: var(--ink-2);
+      font-size: 17px;
+      max-width: 40ch;
+      margin-bottom: 24px;
+    }
+
+    /* ---------- Footer ---------- */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 48px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    footer .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    footer a:hover { color: var(--copper-bright); }
+
+    /* Reveal-on-scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 700ms cubic-bezier(.2,.7,.2,1), transform 700ms cubic-bezier(.2,.7,.2,1);
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ============== TOP BAR ============== -->
+  <header class="topbar">
+    <div class="wrap">
+      <div class="row">
+        <a href="#" class="mark" aria-label="Scrapi home">
+          <span class="mark-glyph" aria-hidden="true"></span>
+          <span class="mark-name">Scrapi</span>
+          <span class="mark-suffix">// sales floor OS</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="#how" class="nav-link">How</a>
+          <a href="#yards" class="nav-link">Yards</a>
+          <a href="#buyers" class="nav-link">Buyers</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+          <a href="#contact" class="pill">Talk to us &rarr;</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== HERO ============== -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="hero-meta">
+          <span class="section-label">§01 — The pitch</span>
+          <span class="eyebrow">Private beta · industrial scrap</span>
+        </div>
+
+        <h1>
+          Scrap trades on <span class="strike">WhatsApp</span>.<br />
+          We think it deserves <em>better</em>.
+        </h1>
+
+        <p class="lede">
+          Scrapi is a private operating layer for medium-and-large yards.
+          Email, SMS, and WhatsApp bids land in <strong>one sorted table</strong>,
+          with an immutable record behind every accepted deal.
+          <strong>No marketplace. No public pool. No middleman.</strong>
+        </p>
+
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#contact">
+            See your bid table <span class="arrow">&rarr;</span>
+          </a>
+          <a class="btn btn-ghost" href="#how">
+            How it works
+          </a>
+        </div>
+      </div>
+
+      <aside class="hero-aside" aria-label="Live bid table demo">
+        <div class="terminal" id="terminal">
+          <div class="terminal-bar">
+            <div class="left">
+              <span class="lot-tag"><span class="lot-id">LOT–4471</span> 25 GT · HMS 1/2 · Mill-prep</span>
+            </div>
+            <span class="live-dot">Live</span>
+          </div>
+
+          <div class="terminal-meta">
+            <div class="stat">
+              <div class="label">Broadcast</div>
+              <div class="value">12 buyers</div>
+            </div>
+            <div class="stat">
+              <div class="label">Bids in</div>
+              <div class="value" id="bidCount">7</div>
+            </div>
+            <div class="stat">
+              <div class="label">Top bid</div>
+              <div class="value copper" id="topBid">$348/GT</div>
+            </div>
+            <div class="stat">
+              <div class="label">Closes</div>
+              <div class="value">14:00 CT</div>
+            </div>
+          </div>
+
+          <table class="bid-table" aria-label="Bid stack">
+            <thead>
+              <tr>
+                <th>Buyer</th>
+                <th>Channel</th>
+                <th class="right">Bid</th>
+                <th class="right">Terms</th>
+                <th class="right">Time</th>
+              </tr>
+            </thead>
+            <tbody id="bidBody">
+              <tr class="top">
+                <td>Hartwell Metals</td>
+                <td><span class="channel whatsapp">WhatsApp</span></td>
+                <td class="bid right">$348.00 / GT</td>
+                <td class="right"><span class="terms">FOB</span></td>
+                <td class="right dim">11:51</td>
+              </tr>
+              <tr>
+                <td>Empire Alloy &amp; Brass</td>
+                <td><span class="channel sms">SMS</span></td>
+                <td class="right">$345.00 / GT</td>
+                <td class="right"><span class="terms">DEL</span></td>
+                <td class="right dim">11:48</td>
+              </tr>
+              <tr>
+                <td>Cascade Recycling</td>
+                <td><span class="channel email">Email</span></td>
+                <td class="right">$342.50 / GT</td>
+                <td class="right"><span class="terms">FOB</span></td>
+                <td class="right dim">11:42</td>
+              </tr>
+              <tr>
+                <td>Liberty Steel Trading</td>
+                <td><span class="channel whatsapp">WhatsApp</span></td>
+                <td class="right">$340.00 / GT</td>
+                <td class="right"><span class="terms">FOB</span></td>
+                <td class="right dim">11:38</td>
+              </tr>
+              <tr>
+                <td>Northshore Metal Co</td>
+                <td><span class="channel email">Email</span></td>
+                <td class="right">$338.00 / GT</td>
+                <td class="right"><span class="terms">DEL</span></td>
+                <td class="right dim">11:31</td>
+              </tr>
+              <tr>
+                <td>Granite State Scrap</td>
+                <td><span class="channel sms">SMS</span></td>
+                <td class="right">$335.00 / GT</td>
+                <td class="right"><span class="terms">FOB</span></td>
+                <td class="right dim">11:24</td>
+              </tr>
+              <tr>
+                <td>Metro Iron Brokers</td>
+                <td><span class="channel portal">Portal</span></td>
+                <td class="right">$330.00 / GT</td>
+                <td class="right"><span class="terms">FOB</span></td>
+                <td class="right dim">11:11</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="terminal-foot">
+            <span>Sorted: effective price · DEL normalized to FOB</span>
+            <button class="accept-btn" type="button">Accept top bid</button>
+          </div>
+        </div>
+
+        <div class="terminal-caption">
+          <span>// Mock data shown for illustration</span>
+          <span>Truth Log enabled</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============== EDITORIAL PULL-QUOTE ============== -->
+  <section class="band">
+    <div class="wrap pull">
+      <div class="section-label">§02 — The thesis</div>
+      <blockquote class="pull-quote">
+        Sales managers spend nearly half their day inside group chats.
+        Bid history lives in a phone someone is going to drop in a coffee.
+        <em>The yards we know best deserve a better operating layer</em> —
+        not a marketplace, not an ERP, and definitely not another vendor
+        looking to skim a percentage off every load.
+        <div class="pull-attrib">— Founder note</div>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ============== HOW IT WORKS ============== -->
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">§03 — The flow</div>
+        <h2 class="section-title">Three steps. <em>That's it.</em></h2>
+      </div>
+
+      <div class="steps reveal">
+        <div class="step">
+          <div class="num">01 / Intake</div>
+          <h3>List a lot in 60 seconds.</h3>
+          <p>
+            Forward an email, paste a message, or snap a photo set on your phone.
+            We parse weight, grade, and packaging. You confirm. Done.
+          </p>
+        </div>
+        <div class="step">
+          <div class="num">02 / Broadcast</div>
+          <h3>Reach your buyers where they already are.</h3>
+          <p>
+            Send to your private list over email, SMS, or WhatsApp. Buyers reply
+            on the channel they're already using — no app to download, no portal
+            to remember.
+          </p>
+        </div>
+        <div class="step">
+          <div class="num">03 / Triage</div>
+          <h3>One sorted table. One click to accept.</h3>
+          <p>
+            Every bid lands in one screen, normalized to FOB and sorted by
+            effective price. Accept locks the deal, notifies the floor, and
+            writes the Truth Log.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== AUDIENCE SPLIT ============== -->
+  <section class="section" id="yards">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">§04 — Who it's for</div>
+        <h2 class="section-title">Built for <em>both sides</em> of the deal.</h2>
+      </div>
+
+      <div class="audience reveal">
+        <div class="col" id="yards-col">
+          <div class="eyebrow">For yards</div>
+          <h3>Run your sales floor like the operation it actually is.</h3>
+          <ul>
+            <li>
+              <div>
+                <strong>One inbox for every channel.</strong>
+                Email, SMS, WhatsApp, and direct portal bids — sorted, normalized,
+                searchable.
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Your buyer list is yours.</strong>
+                Private broadcasts only. Per-tenant encryption. We never aggregate,
+                resell, or expose your list to other yards.
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>An audit log your owner will love.</strong>
+                Every photo, weight, and bid attached immutably to the accepted lot.
+                Disputes get resolved in minutes, not days.
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Sync with your ERP. Don't replace it.</strong>
+                We're an operating layer, not a rip-and-replace. Monthly database
+                exports stated in your contract.
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col buyers" id="buyers-col">
+          <div class="eyebrow">For buyers</div>
+          <h3>Reply how you already do — and never miss a lot.</h3>
+          <ul>
+            <li>
+              <div>
+                <strong>No app. No login. No friction.</strong>
+                Get a lot alert, reply with your number on the same channel.
+                Scrapi parses it into the yard's bid stack.
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Quote in the format you already use.</strong>
+                "$2.40 FOB," "240 del," "pass" — we understand the dialect,
+                including the grade-speak.
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Win or lose, you'll know fast.</strong>
+                Auto-notification when a lot closes. No more chasing the yard
+                for a status update three days after the fact.
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Same trust. Better signal.</strong>
+                The yards you already work with — just less noise between you
+                and the next load.
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== TRUTH LOG ============== -->
+  <section class="section" id="trust">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">§05 — Truth Log</div>
+        <h2 class="section-title">Every deal, <em>on the record</em>.</h2>
+      </div>
+
+      <div class="trust-grid">
+        <div class="log reveal" aria-label="Example Truth Log">
+          <div class="head">
+            <span>LOT–4471 · Truth Log</span>
+            <span>Append-only</span>
+          </div>
+          <div class="row">
+            <span class="ts">10:02:14</span>
+            <span class="ev">LOT_CREATED</span>
+            <span class="body">25 GT · HMS 1/2 · Mill-prep · 6 photos · scale ticket #88412</span>
+          </div>
+          <div class="row">
+            <span class="ts">10:04:51</span>
+            <span class="ev">BROADCAST_SENT</span>
+            <span class="body">12 buyers · email · sms · whatsapp</span>
+          </div>
+          <div class="row">
+            <span class="ts">11:11:08</span>
+            <span class="ev">BID_RECEIVED</span>
+            <span class="body">Metro Iron Brokers · <em>$330.00 / GT FOB</em> · portal</span>
+          </div>
+          <div class="row dim">
+            <span class="ts">11:24</span>
+            <span class="ev">BID_RECEIVED</span>
+            <span class="body">Granite State Scrap · $335.00 / GT FOB · sms</span>
+          </div>
+          <div class="row dim">
+            <span class="ts">11:31</span>
+            <span class="ev">BID_RECEIVED</span>
+            <span class="body">Northshore Metal Co · $338.00 / GT DEL · email</span>
+          </div>
+          <div class="row dim">
+            <span class="ts">11:38</span>
+            <span class="ev">BID_RECEIVED</span>
+            <span class="body">Liberty Steel · $340.00 / GT FOB · whatsapp</span>
+          </div>
+          <div class="row">
+            <span class="ts">11:51:22</span>
+            <span class="ev">BID_RECEIVED</span>
+            <span class="body">Hartwell Metals · <em>$348.00 / GT FOB</em> · whatsapp</span>
+          </div>
+          <div class="row">
+            <span class="ts">14:00:01</span>
+            <span class="ev">BID_ACCEPTED</span>
+            <span class="body">Hartwell Metals · <em>$348.00 / GT FOB</em> · winning bid</span>
+          </div>
+          <div class="hash">
+            sha256 <span>9f4a · 21c8 · ed03 · b714 · 6680 · a92c · 0fdc · 1e57</span>
+          </div>
+        </div>
+
+        <div class="trust-text reveal">
+          <div class="eyebrow">Dispute resolution, built in</div>
+          <h2>Photos, weights, assays, every bid — all attached to the accepted deal.</h2>
+          <p>
+            Post-sale claims are the most expensive surprises in scrap.
+            Scrapi attaches every input — the photos you took, the scale ticket,
+            the assay, every incoming bid — to the accepted lot in an
+            append-only record. When a buyer disputes weight or grade, the
+            answer is one click away. Your owner gets cover. Your buyer gets
+            certainty. The deal closes on time.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PRICING ============== -->
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">§06 — Pricing</div>
+        <h2 class="section-title">Flat fee. <em>No take-rate.</em> Ever.</h2>
+      </div>
+
+      <div class="pricing reveal">
+        <div class="tier">
+          <div class="name">Starter</div>
+          <h3>Single yard, lean team</h3>
+          <div class="price">$400<span class="unit">/ mo</span></div>
+          <ul>
+            <li>1 location · up to 3 seats</li>
+            <li>Email + SMS broadcast</li>
+            <li>Sorted bid table · one-click accept</li>
+            <li>Truth Log + monthly database export</li>
+          </ul>
+        </div>
+        <div class="tier featured">
+          <div class="name">Growth</div>
+          <h3>The way most yards run it</h3>
+          <div class="price">$1,200<span class="unit">/ mo</span></div>
+          <ul>
+            <li>1 location · up to 10 seats</li>
+            <li>Email + SMS + WhatsApp</li>
+            <li>Buyer performance analytics</li>
+            <li>BOL &amp; packing list generation</li>
+            <li>Truth Log + claims module</li>
+          </ul>
+        </div>
+        <div class="tier">
+          <div class="name">Enterprise</div>
+          <h3>Multi-location operators</h3>
+          <div class="price">Talk<span class="unit">to us</span></div>
+          <ul>
+            <li>Unlimited locations &amp; seats</li>
+            <li>Scale-software integration</li>
+            <li>SSO, custom roles, custom SLAs</li>
+            <li>One-time integration setup fee</li>
+            <li>Dedicated onboarding</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="pricing-foot">
+        Indicative pricing for design-partner yards. Priced on seats and locations —
+        not lot count. We never take a percentage of a deal.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============== FOUNDER NOTE / MANIFESTO ============== -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">§07 — Founder note</div>
+        <h2 class="section-title">Bootstrapped. <em>On purpose.</em></h2>
+      </div>
+
+      <div class="manifesto reveal">
+        <p>
+          We are not raising venture capital. We are building Scrapi the way the
+          industry we serve actually runs — <em>by reinvesting what we earn</em>,
+          paying our own bills, and answering only to the operators who use the
+          product every day.
+        </p>
+        <p>
+          One of us has spent his career on the buyer side of recycling.
+          The other builds software. We started because every yard we know
+          deserves a better tool than the one they've cobbled together — and
+          because we'd rather build it for them than watch a marketplace try to
+          replace them.
+        </p>
+        <p>
+          If we earn your business, we earn it twice: once when you sign up,
+          and once <em>every month thereafter</em>.
+        </p>
+        <div class="signoff">
+          <strong>— The Scrapi founders</strong> · Avobeso, Inc.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FINAL CTA ============== -->
+  <section class="final" id="contact">
+    <div class="wrap final-grid">
+      <div>
+        <div class="section-label">§08 — Talk to us</div>
+        <h2>
+          Show us your last <br />
+          two weeks of lots. <br />
+          We'll show you <em>your bid table</em>.
+        </h2>
+      </div>
+      <div class="final-aside">
+        <p>
+          A 20-minute conversation. We'll load your recent lots into a private
+          instance and walk you through what your sales floor would look like
+          on Scrapi. No deck. No NDA gymnastics.
+        </p>
+        <a class="btn btn-primary" href="mailto:hello@scrapi.com?subject=Scrapi%20demo%20—%20our%20last%20two%20weeks%20of%20lots">
+          Book the call <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer>
+    <div class="wrap row">
+      <div>© Avobeso, Inc. · Scrapi is a product of Avobeso</div>
+      <div>
+        <a href="mailto:hello@scrapi.com">hello@scrapi.com</a>
+      </div>
+      <div>Built for yards · Bootstrapped · Private beta</div>
+    </div>
+  </footer>
+
+  <script>
+    // Reveal-on-scroll
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+    // "Live" hero bid: a new bid arrives after a few seconds, table re-sorts.
+    (function liveBid() {
+      const body     = document.getElementById('bidBody');
+      const bidCount = document.getElementById('bidCount');
+      const topBid   = document.getElementById('topBid');
+      if (!body || !bidCount || !topBid) return;
+
+      // After 4.5s, simulate a fresh top bid landing.
+      setTimeout(() => {
+        const tr = document.createElement('tr');
+        tr.className = 'top row-incoming';
+        tr.innerHTML = `
+          <td>Bayou Brass &amp; Iron</td>
+          <td><span class="channel whatsapp">WhatsApp</span></td>
+          <td class="bid right">$351.00 / GT</td>
+          <td class="right"><span class="terms">FOB</span></td>
+          <td class="right dim">just now</td>
+        `;
+
+        // Demote the previous top row.
+        const prevTop = body.querySelector('tr.top');
+        if (prevTop) {
+          prevTop.classList.remove('top');
+          const bidCell = prevTop.querySelector('td.bid');
+          if (bidCell) bidCell.classList.remove('bid');
+        }
+
+        body.prepend(tr);
+
+        // Update header stats.
+        bidCount.textContent = (parseInt(bidCount.textContent, 10) + 1).toString();
+        topBid.textContent = '$351/GT';
+      }, 4500);
+    })();
+  </script>
+</body>
 </html>
