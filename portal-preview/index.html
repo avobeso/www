@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Sales Floor — Demo Yard · Scrapi</title>
+  <meta name="description" content="A sample Scrapi portal preloaded with a real-shape multi-load bid request. Demo mode, read-only." />
+  <meta name="theme-color" content="#F4EFE3" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --paper:         #F4EFE3;
+      --paper-2:       #ECE5D2;
+      --paper-3:       #E2DABF;
+      --paper-edge:    #D5CBA8;
+
+      --line:          #C5BBA0;
+      --line-soft:     #D7CEB1;
+      --line-strong:   #8E8569;
+
+      --ink:           #1B1A16;
+      --ink-2:         #3D3A30;
+      --ink-dim:       #6F6852;
+      --ink-faint:     #9C9576;
+
+      --copper:        #B0612C;
+      --copper-deep:   #7A3F1B;
+      --copper-bright: #C9763E;
+
+      --patina:        #4A6B58;
+      --patina-light:  #6B8D78;
+      --patina-deep:   #2F4A3A;
+
+      --rust:          #8E3520;
+      --brass:         #9A7C3D;
+      --aluminum:      #8B8B7E;
+      --steel:         #5A5C58;
+
+      --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+      --body:    'IBM Plex Sans', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono:    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --max:     1380px;
+      --gutter:  clamp(20px, 4vw, 56px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    body {
+      background:
+        radial-gradient(1100px 700px at 88% -8%, rgba(176,97,44,0.06), transparent 60%),
+        var(--paper);
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.4;
+      mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.39  0 0 0 0 0.31  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    img, svg { display: block; max-width: 100%; }
+    ::selection { background: var(--copper); color: var(--paper); }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ---------- Doc strip ---------- */
+    .docstrip {
+      border-bottom: 1px solid var(--line);
+      background: var(--paper-3);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      position: relative;
+      z-index: 3;
+    }
+    .docstrip .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .docstrip .demo {
+      color: var(--copper-deep);
+      font-weight: 500;
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      position: relative;
+      z-index: 5;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .topbar .row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .topbar .left { display: flex; align-items: baseline; gap: 12px; }
+    .mark-glyph { width: 22px; height: 22px; flex-shrink: 0; position: relative; top: 4px; }
+    .mark-name {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 22px;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .mark-suffix {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-dim);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .topbar .yard-id {
+      font-family: var(--display);
+      font-weight: 480;
+      font-size: 18px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      flex: 1;
+      text-align: center;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 4px 18px;
+    }
+    .topbar .yard-id small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+    .topbar .right {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+    }
+    .topbar .right a { transition: color 180ms ease; }
+    .topbar .right a:hover { color: var(--copper-deep); }
+
+    @media (max-width: 760px) {
+      .topbar .yard-id { display: none; }
+    }
+
+    /* ---------- Welcome strip ---------- */
+    .welcome {
+      padding: clamp(36px, 6vw, 60px) 0 clamp(24px, 3vw, 36px);
+      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(700px 300px at 80% 50%, rgba(176,97,44,0.05), transparent 60%),
+        var(--paper-2);
+    }
+    .welcome .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--copper-deep);
+      margin-bottom: 14px;
+    }
+    .welcome h1 {
+      font-family: var(--display);
+      font-weight: 380;
+      font-size: clamp(32px, 4.6vw, 56px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 10px;
+      font-variation-settings: "opsz" 144;
+      max-width: 22ch;
+    }
+    .welcome h1 em {
+      font-style: italic;
+      color: var(--copper);
+      font-weight: 360;
+    }
+    .welcome p.lede {
+      max-width: 52ch;
+      margin: 0 0 30px;
+      color: var(--ink-2);
+      font-size: 16.5px;
+      line-height: 1.55;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--line-strong);
+      border-left: 1px solid var(--line-strong);
+      background: var(--paper);
+    }
+    @media (max-width: 760px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+    .kpi {
+      padding: 18px 22px;
+      border-right: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+    }
+    .kpi .label {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 6px;
+    }
+    .kpi .value {
+      font-family: var(--display);
+      font-weight: 480;
+      font-size: 28px;
+      color: var(--ink);
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+    .kpi .value.copper { color: var(--copper); }
+    .kpi .sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-dim);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ---------- Lot section ---------- */
+    .lot {
+      padding: clamp(40px, 5vw, 64px) 0 clamp(20px, 3vw, 36px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .lot-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 760px) { .lot-head { grid-template-columns: 1fr; } }
+
+    .lot-head .id {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 8px;
+    }
+    .lot-head h2 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: clamp(28px, 3.4vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.018em;
+      margin: 0;
+      font-variation-settings: "opsz" 144;
+    }
+    .lot-head h2 em {
+      font-style: italic;
+      color: var(--copper);
+      font-weight: 380;
+    }
+
+    .lot-meta {
+      display: flex;
+      gap: 14px 22px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: 0.06em;
+      color: var(--ink-2);
+    }
+    .lot-meta .pair { display: inline-flex; gap: 8px; align-items: center; }
+    .lot-meta .pair .k { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.18em; font-size: 10.5px; }
+    .lot-meta .pair .v { color: var(--ink); font-weight: 500; }
+
+    /* ---------- Bid grid ---------- */
+    .bid-grid {
+      border: 1px solid var(--line-strong);
+      background: var(--paper);
+      box-shadow: 0 14px 36px -28px rgba(27,26,22,0.30);
+    }
+
+    .bid-row {
+      display: grid;
+      grid-template-columns: 32px minmax(180px, 2.4fr) 100px 130px minmax(140px, 1.4fr) 80px auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--paper);
+      transition: background 160ms ease;
+      cursor: pointer;
+    }
+    .bid-row:hover { background: var(--paper-2); }
+    .bid-row.is-open { background: var(--paper-2); border-bottom-color: var(--line-strong); }
+    .bid-row.head {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 14px 18px;
+      background: var(--paper-3);
+      border-bottom: 1px solid var(--line-strong);
+      cursor: default;
+    }
+    .bid-row.head:hover { background: var(--paper-3); }
+
+    .bid-row .idx {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-faint);
+      text-align: right;
+    }
+    .bid-row .commodity .name {
+      font-family: var(--display);
+      font-weight: 480;
+      font-size: 16px;
+      color: var(--ink);
+      line-height: 1.2;
+      letter-spacing: -0.005em;
+    }
+    .bid-row .commodity .code {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--ink-faint);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+    .bid-row .weight {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink-2);
+      text-align: right;
+    }
+    .bid-row .topbid {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--copper-deep);
+      font-weight: 600;
+      text-align: right;
+    }
+    .bid-row .topbid.zero {
+      color: var(--ink-faint);
+      font-weight: 400;
+    }
+    .bid-row .topbidder {
+      font-family: var(--body);
+      font-size: 13px;
+      color: var(--ink);
+    }
+    .bid-row .topbidder .channel {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--ink-faint);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-left: 6px;
+      padding: 1px 6px;
+      border: 1px solid var(--line);
+      vertical-align: 1px;
+    }
+    .bid-row .bidcount {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-dim);
+      text-align: right;
+      padding: 2px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      justify-self: end;
+    }
+    .bid-row .action {
+      justify-self: end;
+    }
+
+    .accept-btn {
+      background: var(--patina);
+      color: var(--paper);
+      border: 1px solid var(--patina-deep);
+      padding: 7px 13px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: background 180ms ease;
+    }
+    .accept-btn:hover { background: var(--patina-deep); }
+    .accept-btn[disabled] { background: var(--ink-faint); border-color: var(--ink-faint); cursor: not-allowed; opacity: 0.7; }
+
+    .bid-stack {
+      grid-column: 1 / -1;
+      display: none;
+      padding: 10px 0 14px 50px;
+      background: var(--paper-2);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .bid-row.is-open + .bid-stack { display: block; }
+
+    .bid-stack table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .bid-stack th {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      font-weight: 500;
+      text-align: left;
+      padding: 6px 12px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .bid-stack th.right { text-align: right; }
+    .bid-stack td {
+      padding: 8px 12px;
+      color: var(--ink-2);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .bid-stack td.right { text-align: right; }
+    .bid-stack tr.top td { color: var(--copper-deep); font-weight: 600; }
+    .bid-stack tr.top td .badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      padding: 1px 6px;
+      background: var(--copper);
+      color: var(--paper);
+      margin-left: 8px;
+      vertical-align: 1px;
+    }
+    .bid-stack tr.passed td { color: var(--ink-faint); font-style: italic; }
+
+    .channel-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-right: 7px;
+      vertical-align: 1px;
+    }
+    .channel-dot.email     { background: var(--steel); }
+    .channel-dot.sms       { background: var(--brass); }
+    .channel-dot.whatsapp  { background: var(--patina); }
+    .channel-dot.portal    { background: var(--copper); }
+
+    @media (max-width: 1020px) {
+      .bid-row {
+        grid-template-columns: 28px minmax(0, 1fr) 90px 110px;
+        gap: 10px;
+      }
+      .bid-row .topbidder, .bid-row .bidcount, .bid-row .action { display: none; }
+      .bid-row.head .topbidder, .bid-row.head .bidcount, .bid-row.head .action { display: none; }
+    }
+
+    /* ---------- Truth Log ---------- */
+    .truthlog {
+      padding: clamp(40px, 5vw, 60px) 0;
+      background: var(--paper-2);
+      border-bottom: 1px solid var(--line);
+    }
+    .truthlog-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .truthlog h2 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: clamp(26px, 3vw, 38px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0;
+      font-variation-settings: "opsz" 144;
+    }
+    .truthlog h2 em {
+      font-style: italic;
+      color: var(--copper);
+      font-weight: 380;
+    }
+    .truthlog .blurb {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .ticket {
+      background: var(--paper);
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 14px 36px -28px rgba(27,26,22,0.30);
+    }
+    .ticket-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 22px;
+      background: var(--paper-3);
+      border-bottom: 1px solid var(--line-strong);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .ticket-head .stamp {
+      color: var(--patina-deep);
+      border: 1px solid var(--patina);
+      padding: 2px 8px;
+      letter-spacing: 0.2em;
+    }
+    .ticket-body {
+      padding: 14px 22px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--ink-2);
+    }
+    .ticket-body .row {
+      display: grid;
+      grid-template-columns: 110px 130px 1fr;
+      gap: 14px;
+      padding: 5px 0;
+    }
+    .ticket .ts { color: var(--ink-faint); }
+    .ticket .ev { color: var(--copper); font-weight: 500; }
+    .ticket .body { color: var(--ink); }
+    .ticket .body em { color: var(--copper-deep); font-style: normal; font-weight: 600; }
+    .ticket .row.dim .body, .ticket .row.dim .ts { color: var(--ink-dim); }
+    .ticket-foot {
+      padding: 12px 22px 16px;
+      border-top: 1px dashed var(--line-strong);
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-faint);
+      word-break: break-all;
+    }
+    .ticket-foot .hash span { color: var(--copper); }
+
+    /* ---------- Footer CTA ---------- */
+    .closer {
+      padding: clamp(50px, 7vw, 90px) 0;
+      background:
+        radial-gradient(700px 300px at 50% 50%, rgba(176,97,44,0.08), transparent 60%),
+        var(--paper);
+    }
+    .closer .wrap {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+    @media (max-width: 760px) { .closer .wrap { grid-template-columns: 1fr; } }
+
+    .closer h2 {
+      font-family: var(--display);
+      font-weight: 380;
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 14px;
+      font-variation-settings: "opsz" 144;
+      max-width: 22ch;
+    }
+    .closer h2 em { font-style: italic; color: var(--copper); font-weight: 360; }
+    .closer p {
+      color: var(--ink-2);
+      font-size: 16.5px;
+      line-height: 1.55;
+      max-width: 50ch;
+      margin: 0 0 24px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: transform 200ms ease, background 200ms ease, color 200ms ease, border-color 200ms ease;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+      border: 1px solid var(--ink);
+    }
+    .btn-primary:hover {
+      background: var(--copper-deep);
+      border-color: var(--copper-deep);
+      transform: translateY(-1px);
+    }
+    .btn-primary .arrow { transition: transform 220ms ease; }
+    .btn-primary:hover .arrow { transform: translateX(3px); }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 26px 0 36px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      background: var(--paper);
+    }
+    footer .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    footer a:hover { color: var(--copper-deep); }
+  </style>
+</head>
+<body>
+
+  <!-- ============== DOC STRIP ============== -->
+  <div class="docstrip">
+    <div class="wrap row">
+      <span class="demo">Form SC-PORTAL-01 · Sample · DEMO MODE · Read-only</span>
+      <span>Generated 2026-05-05 · Sales floor preview</span>
+    </div>
+  </div>
+
+  <!-- ============== TOP BAR ============== -->
+  <header class="topbar">
+    <div class="wrap row">
+      <div class="left">
+        <a href="../" class="left" aria-label="Scrapi home" style="display:inline-flex;align-items:baseline;gap:12px;">
+          <svg class="mark-glyph" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="14.5" fill="none" stroke="#B0612C" stroke-width="1.4"/>
+            <rect x="9" y="9" width="14" height="14" transform="rotate(45 16 16)" fill="none" stroke="#B0612C" stroke-width="1.4"/>
+            <line x1="2" y1="16" x2="6" y2="16" stroke="#B0612C" stroke-width="1.4"/>
+            <line x1="26" y1="16" x2="30" y2="16" stroke="#B0612C" stroke-width="1.4"/>
+          </svg>
+          <span class="mark-name">Scrapi</span>
+          <span class="mark-suffix">// the sales floor</span>
+        </a>
+      </div>
+      <div class="yard-id">
+        Demo Yard
+        <small>Houston, TX · Tenant ID DEMO-0001</small>
+      </div>
+      <div class="right">
+        <a href="../">← scrapi.com</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== WELCOME ============== -->
+  <section class="welcome">
+    <div class="wrap">
+      <div class="eyebrow">§01 — Your Floor</div>
+      <h1>Welcome back to <em>your floor</em>.</h1>
+      <p class="lede">
+        Here's what your sales floor looks like on Scrapi.
+        Two open lots from your last bid request — broadcast to your buyer list,
+        sorted by line item, ready for a one-click accept.
+        Truth Log on the right keeps every bid, photo, and weight on record.
+      </p>
+
+      <div class="kpi-row" id="kpis">
+        <div class="kpi"><div class="label">Active lots</div><div class="value">2</div><div class="sub">/ 2 received this batch</div></div>
+        <div class="kpi"><div class="label">Line items</div><div class="value">40</div><div class="sub">across 2 loads</div></div>
+        <div class="kpi"><div class="label">Total weight</div><div class="value" id="kpi-weight">178.0k</div><div class="sub">lbs · ~4× 40FT containers</div></div>
+        <div class="kpi"><div class="label">Buyers responded</div><div class="value copper">5</div><div class="sub">of 12 broadcast</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== LOT 1 ============== -->
+  <section class="lot" id="lot-4471">
+    <div class="wrap">
+      <div class="lot-head">
+        <div>
+          <div class="id">LOT-4471 · Charleston</div>
+          <h2>Mixed nonferrous &amp; copper bearing — <em>2 × 40FT</em></h2>
+        </div>
+        <div class="lot-meta">
+          <span class="pair"><span class="k">Yard</span><span class="v">425 / Augusta</span></span>
+          <span class="pair"><span class="k">Ramp</span><span class="v">Charleston</span></span>
+          <span class="pair"><span class="k">Per CN</span><span class="v">~44k lbs ±10%</span></span>
+          <span class="pair"><span class="k">Ship</span><span class="v">2026-05-20</span></span>
+          <span class="pair"><span class="k">Total</span><span class="v">92,709 lbs</span></span>
+        </div>
+      </div>
+
+      <div class="bid-grid" data-lot-id="LOT-4471">
+        <div class="bid-row head">
+          <div class="idx">#</div>
+          <div class="commodity">Commodity</div>
+          <div class="weight">Weight</div>
+          <div class="topbid">Top Bid</div>
+          <div class="topbidder">Top Bidder</div>
+          <div class="bidcount">Bids</div>
+          <div class="action">Action</div>
+        </div>
+        <!-- 16 line items injected here by render-script -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== LOT 2 ============== -->
+  <section class="lot" id="lot-4472">
+    <div class="wrap">
+      <div class="lot-head">
+        <div>
+          <div class="id">LOT-4472 · Houston</div>
+          <h2>Mixed brass, copper &amp; ICW — <em>2 × 40FT</em></h2>
+        </div>
+        <div class="lot-meta">
+          <span class="pair"><span class="k">Yard</span><span class="v">317 / Lufkin</span></span>
+          <span class="pair"><span class="k">Ramp</span><span class="v">Houston</span></span>
+          <span class="pair"><span class="k">Per CN</span><span class="v">~44k lbs ±10%</span></span>
+          <span class="pair"><span class="k">Ship</span><span class="v">2026-05-20</span></span>
+          <span class="pair"><span class="k">Total</span><span class="v">85,335 lbs</span></span>
+        </div>
+      </div>
+
+      <div class="bid-grid" data-lot-id="LOT-4472">
+        <div class="bid-row head">
+          <div class="idx">#</div>
+          <div class="commodity">Commodity</div>
+          <div class="weight">Weight</div>
+          <div class="topbid">Top Bid</div>
+          <div class="topbidder">Top Bidder</div>
+          <div class="bidcount">Bids</div>
+          <div class="action">Action</div>
+        </div>
+        <!-- 24 line items injected here by render-script -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== TRUTH LOG ============== -->
+  <section class="truthlog">
+    <div class="wrap">
+      <div class="truthlog-head">
+        <h2>Truth Log — <em>on the record</em>.</h2>
+        <div class="blurb">Append-only · sha256-stamped · dispute-grade</div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-head">
+          <span>LOT-4471 / 4472 · Truth Log</span>
+          <span class="stamp">Append-only</span>
+        </div>
+        <div class="ticket-body">
+          <div class="row"><span class="ts">2026-05-04 09:14</span><span class="ev">LOT_INGESTED</span><span class="body">LOT-4471 · 16 lines · 92,709 lbs · source = email attachment</span></div>
+          <div class="row"><span class="ts">2026-05-04 09:14</span><span class="ev">LOT_INGESTED</span><span class="body">LOT-4472 · 24 lines · 85,335 lbs · source = email attachment</span></div>
+          <div class="row"><span class="ts">2026-05-04 09:22</span><span class="ev">BROADCAST_SENT</span><span class="body">12 buyers · email · subject "Bid request — Charleston / Houston · 5/20"</span></div>
+          <div class="row dim"><span class="ts">2026-05-04 11:08</span><span class="ev">BID_RECEIVED</span><span class="body">Hartwell Metals · email · 14 line bids · LOT-4471</span></div>
+          <div class="row dim"><span class="ts">2026-05-04 11:42</span><span class="ev">BID_RECEIVED</span><span class="body">Empire Alloy &amp; Brass · email · 12 line bids · LOT-4471</span></div>
+          <div class="row dim"><span class="ts">2026-05-04 14:51</span><span class="ev">BID_RECEIVED</span><span class="body">Cascade Recycling · email · 22 line bids · LOT-4472</span></div>
+          <div class="row dim"><span class="ts">2026-05-05 06:18</span><span class="ev">BID_RECEIVED</span><span class="body">Liberty Steel Trading · email · 18 line bids · split lots</span></div>
+          <div class="row"><span class="ts">2026-05-05 08:02</span><span class="ev">BID_RECEIVED</span><span class="body">Northshore Metal Co · email · 16 line bids · top bid on <em>Refinery Brass 70%</em></span></div>
+          <div class="row dim"><span class="ts">2026-05-05 09:30</span><span class="ev">PHOTO_LINKED</span><span class="body">8 photos linked to LOT-4471 line items (heater cores, auto rads)</span></div>
+          <div class="row"><span class="ts">2026-05-05 09:44</span><span class="ev">CLOSE_SCHEDULED</span><span class="body">Auto-close at 14:00 CT today · auto-rejection drafts queued</span></div>
+        </div>
+        <div class="ticket-foot">
+          <span class="hash">sha256 <span>e1f0 · 2c4b · a7d9 · 6610 · 8c33 · 1bbf · 4ad8 · 9e26</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CLOSER ============== -->
+  <section class="closer">
+    <div class="wrap">
+      <div>
+        <h2>This is a sample. Your portal will show <em>your real lots</em>.</h2>
+        <p>
+          Send us your last two weeks of lots — exactly as you already prepare them.
+          We'll have a private portal preloaded for you within 48 hours, ready for the
+          20-minute walkthrough.
+        </p>
+        <a class="btn btn-primary" href="../#contact">
+          Book your walkthrough <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+      <div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap row">
+      <div>© Avobeso, Inc. · Scrapi · Demo portal</div>
+      <div>Tenant: DEMO-0001 · Read-only</div>
+      <div><a href="../">scrapi.com →</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // -------- Lot data (from samples/yards/cmc/, anonymized) --------
+
+    const BUYERS = [
+      "Hartwell Metals",
+      "Empire Alloy & Brass",
+      "Cascade Recycling",
+      "Liberty Steel Trading",
+      "Northshore Metal Co",
+    ];
+
+    const LOTS = [
+      {
+        id: "LOT-4471",
+        lines: [
+          { commodity: "Sealed Units (Motors)",   code: "30083084", weight: 30500, anchor: 0.45 },
+          { commodity: "Refinery Brass 70%",      code: "30093755", weight: 17000, anchor: 2.13 },
+          { commodity: "Aluminum Transformers",   code: "30093964", weight:  9872, anchor: 0.55 },
+          { commodity: "Heater Cores",            code: "30083093", weight:  9006, anchor: 0.62 },
+          { commodity: "URD",                     code: "30083116", weight:  4323, anchor: 0.93 },
+          { commodity: "Auto Rads",               code: "30083095", weight:  4135, anchor: 2.82 },
+          { commodity: "YB Turnings",             code: "30083096", weight:  3845, anchor: 2.69 },
+          { commodity: "Cu Refinery 70-75%",      code: "30093751", weight:  2722, anchor: 3.43 },
+          { commodity: "Cu Refinery 26%",         code: "30093745", weight:  2300, anchor: 1.06 },
+          { commodity: "Cu Refinery 50%",         code: "30093745", weight:  2300, anchor: 2.13 },
+          { commodity: "Jelly Wire 50%",          code: "30084148", weight:  1964, anchor: 2.35 },
+          { commodity: "Reefer Ends",             code: "30083117", weight:  1820, anchor: 1.18 },
+          { commodity: "Fe Auto Rads",            code: "30083094", weight:  1347, anchor: 2.35 },
+          { commodity: "Die Cast",                code: "30083076", weight:   675, anchor: 0.84 },
+          { commodity: "Silver Plt YB",           code: "30083097", weight:   625, anchor: 3.43 },
+          { commodity: "Lead Shield Cu Wire",     code: "30153839", weight:   275, anchor: 0.41 },
+        ],
+      },
+      {
+        id: "LOT-4472",
+        lines: [
+          { commodity: "Irony Fin Stock",          code: "30084045", weight: 13000, anchor: 0.12 },
+          { commodity: "Brass Valves 87%",         code: "30093756", weight:  7500, anchor: 2.64 },
+          { commodity: "Al/Cu URD",                code: "30083116", weight:  7500, anchor: 0.83 },
+          { commodity: "Clean Lead",               code: "30083078", weight:  5500, anchor: 0.76 },
+          { commodity: "#2 ICW 45%",               code: "30084137", weight:  5000, anchor: 2.16 },
+          { commodity: "Lead Wheel Weights",       code: "30083077", weight:  4600, anchor: 0.31 },
+          { commodity: "Semi Red Brass",           code: "30084180", weight:  4500, anchor: 4.49 },
+          { commodity: "Brass Refinery 65%",       code: "30093755", weight:  4500, anchor: 1.86 },
+          { commodity: "Red Brass",                code: "30083101", weight:  4000, anchor: 4.06 },
+          { commodity: "#2 ICW URD",               code: "30153860", weight:  3800, anchor: 0.35 },
+          { commodity: "#2 ICW 25%",               code: "30153859", weight:  3500, anchor: 1.09 },
+          { commodity: "Harness Wire",             code: "30153816", weight:  3500, anchor: 2.42 },
+          { commodity: "Yellow Brass",             code: "30083097", weight:  3000, anchor: 3.07 },
+          { commodity: "Cu Coils w/Paper",         code: "30099752", weight:  2500, anchor: 1.30 },
+          { commodity: "Cu/Al Coils w/Paper",      code: "30093750", weight:  2000, anchor: 0.31 },
+          { commodity: "#1 ICW 75%",               code: "30084128", weight:  2000, anchor: 3.80 },
+          { commodity: "Die Cast Clean",           code: "30083091", weight:  1600, anchor: 1.11 },
+          { commodity: "Automobile Radiators",     code: "30083095", weight:  1500, anchor: 2.81 },
+          { commodity: "Copper Refinery 75%",      code: "30093751", weight:  1500, anchor: 3.41 },
+          { commodity: "Refinery Red Brass",       code: "30093756", weight:  1485, anchor: 2.12 },
+          { commodity: "Brass Shavings (Dirty)",   code: "30083096", weight:  1200, anchor: 2.55 },
+          { commodity: "Al/Brass Reefer Clean",    code: "30083863", weight:   850, anchor: 1.82 },
+          { commodity: "Capacitors",               code: "30006863", weight:   500, anchor: 0.22 },
+          { commodity: "Cu/Cu URD",                code: "30153709", weight:   300, anchor: 3.41 },
+        ],
+      },
+    ];
+
+    // -------- Deterministic RNG (mulberry32) --------
+    function rng(seed) {
+      let s = seed >>> 0;
+      return function () {
+        s = (s + 0x6D2B79F5) >>> 0;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function generateBidStack(line, lineIdx, lotId) {
+      const seed = lineIdx * 73 + (lotId === "LOT-4472" ? 4471 : 0) + 17;
+      const r = rng(seed);
+      const numBids = 3 + Math.floor(r() * 3); // 3..5
+      const buyers = BUYERS.slice().sort(() => r() - 0.5).slice(0, numBids);
+      const channels = ["email", "email", "email", "sms", "whatsapp"];
+      const bids = buyers.map((buyer, i) => {
+        const pct = i === 0
+          ? (1 + r() * 0.06)            // top bid 0..6% above anchor
+          : (1 - 0.02 - r() * 0.13);    // others 2..15% below anchor
+        const price = Math.max(line.anchor * pct, 0.05);
+        const term = r() > 0.7 ? "DEL" : "FOB";
+        const channel = channels[Math.floor(r() * channels.length)];
+        const minutes = 30 + Math.floor(r() * 600);
+        const ts = `+${(minutes/60|0)}h${String(minutes%60).padStart(2,'0')}`;
+        return { buyer, price, term, channel, ts };
+      });
+      bids.sort((a, b) => b.price - a.price);
+      // Make line 2 of lot 1 (Refinery Brass 70%) and line 7 of lot 2 (Semi Red Brass) "passed by 1 buyer" for visual interest
+      const passed = (lineIdx === 2 || lineIdx === 7) ? { buyer: "Empire Alloy & Brass", price: null, channel: "email", note: "passed" } : null;
+      return { bids, passed };
+    }
+
+    function fmtMoney(p) {
+      return `$${p.toFixed(2)}/lb`;
+    }
+    function fmtWeight(w) {
+      return w.toLocaleString("en-US") + " lbs";
+    }
+
+    function renderRow(line, idx, lotId) {
+      const stack = generateBidStack(line, idx, lotId);
+      const top = stack.bids[0];
+      const totalBids = stack.bids.length + (stack.passed ? 0 : 0);
+
+      const row = document.createElement("div");
+      row.className = "bid-row";
+      row.innerHTML = `
+        <div class="idx">${String(idx).padStart(2, "0")}</div>
+        <div class="commodity">
+          <div class="name">${line.commodity}</div>
+          <div class="code">Code ${line.code}</div>
+        </div>
+        <div class="weight">${fmtWeight(line.weight)}</div>
+        <div class="topbid">${fmtMoney(top.price)}</div>
+        <div class="topbidder">
+          ${top.buyer}
+          <span class="channel">${top.channel}</span>
+        </div>
+        <div class="bidcount">${totalBids} bids</div>
+        <div class="action"><button class="accept-btn" type="button" onclick="event.stopPropagation();">Accept</button></div>
+      `;
+
+      const stackEl = document.createElement("div");
+      stackEl.className = "bid-stack";
+      let stackRows = stack.bids.map((b, i) => `
+        <tr class="${i === 0 ? "top" : ""}">
+          <td>${b.buyer}</td>
+          <td><span class="channel-dot ${b.channel}"></span>${b.channel.toUpperCase()}</td>
+          <td class="right">${fmtMoney(b.price)} ${i === 0 ? '<span class="badge">Top</span>' : ''}</td>
+          <td class="right">${b.term}</td>
+          <td class="right">${b.ts}</td>
+        </tr>
+      `).join("");
+      if (stack.passed) {
+        stackRows += `
+          <tr class="passed">
+            <td>${stack.passed.buyer}</td>
+            <td><span class="channel-dot ${stack.passed.channel}"></span>${stack.passed.channel.toUpperCase()}</td>
+            <td class="right">— passed —</td>
+            <td class="right">—</td>
+            <td class="right">—</td>
+          </tr>
+        `;
+      }
+      stackEl.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Buyer</th>
+              <th>Channel</th>
+              <th class="right">Bid</th>
+              <th class="right">Terms</th>
+              <th class="right">Received</th>
+            </tr>
+          </thead>
+          <tbody>${stackRows}</tbody>
+        </table>
+      `;
+
+      row.addEventListener("click", () => {
+        row.classList.toggle("is-open");
+      });
+
+      return [row, stackEl];
+    }
+
+    function renderLot(lot) {
+      const grid = document.querySelector(`.bid-grid[data-lot-id="${lot.id}"]`);
+      lot.lines.forEach((line, i) => {
+        const [row, stack] = renderRow(line, i + 1, lot.id);
+        grid.appendChild(row);
+        grid.appendChild(stack);
+        // Pre-expand the second row of each lot for visual interest
+        if (i === 1) row.classList.add("is-open");
+      });
+    }
+
+    LOTS.forEach(renderLot);
+  </script>
+</body>
+</html>
